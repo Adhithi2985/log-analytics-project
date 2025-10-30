@@ -11,7 +11,7 @@ public class LogController {
 
     private static final Logger log = LoggerFactory.getLogger(LogController.class);
 
-    @Autowired // This gives us the repository
+    @Autowired 
     private LogEntryRepository repository;
 
     @GetMapping("/log")
@@ -27,7 +27,7 @@ public class LogController {
         return "Logs generated and SAVED to database!";
     }
 
-    // --- THIS IS THE MISSING METHOD ---
+    
     @GetMapping("/error")
     public String generateError() {
         for (int i = 0; i < 10; i++) {

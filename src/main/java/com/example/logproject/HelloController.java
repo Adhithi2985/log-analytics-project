@@ -1,4 +1,4 @@
-package com.example.logproject; // <--- IMPORTANT: Change this to your project's package name
+package com.example.logproject; 
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,7 +12,7 @@ public class HelloController {
      */
     @GetMapping("/")
     public String home() {
-        // You can return any message you want
+       
         return "Application is running successfully!";
     }
 }

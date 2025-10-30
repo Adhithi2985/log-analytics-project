@@ -1,4 +1,4 @@
-package com.example.logproject; // <-- Make sure this package name is correct
+package com.example.logproject; 
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
