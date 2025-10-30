@@ -1,0 +1,70 @@
+services:
+  # 1. Your Spring Boot Application
+  app:
+    build: .
+    container_name: log-project-app
+    ports:
+      - "8080:8080"
+    environment:
+      # --- Database Connection ---
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/logdb
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=secret
+      
+      # --- Actuator for Prometheus ---
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=prometheus,health
+      - MANAGEMENT_SERVER_PORT=8080
+      - MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED=true
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # 2. PostgreSQL Database
+  db:
+    image: postgres:15
+    container_name: log-project-db
+    ports:
+      - "5432:5432"
+    environment:
+      # --- These MUST match the app environment ---
+      - POSTGRES_DB=logdb
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d logdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  # 3. Prometheus (Metrics Scraper)
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      # --- THIS IS THE UPDATED LINE ---
+      - ./prometheus-config.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - app
+
+  # 4. Grafana (Dashboard)
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+# Define volumes to persist data
+volumes:
+  postgres-data:
+  grafana-data:
